@@ -3,14 +3,14 @@ import plotly.express as px
 import dash
 import dash_html_components as html
 import dash_core_components as dcc
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 tips = px.data.tips()
 col_options = [dict(label=x, value=x) for x in tips.columns]
 dimensions = [ "x", "y", "color", "facet_col", "facet_row"]
 
 prefix='/dash/'
-port=22078
+port=int(os.environ.get("PORT", 22078))
 import requests
 res = requests.post('http://127.0.0.1:8082/api/routes/'+prefix, data='''{"target": "http://127.0.0.1:%d"}'''%port)
 print(res.status_code)
@@ -18,7 +18,7 @@ app = dash.Dash(
     __name__, external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css"], routes_pathname_prefix=prefix
 )
 
-GRAPH_INTERVAL = os.environ.get("GRAPH_INTERVAL", 5000)
+GRAPH_INTERVAL = int(os.environ.get("GRAPH_INTERVAL", 5000))
 app.layout = html.Div(
     [
         html.H1("Demo: Plotly Express in Dash with Tips Dataset"),
@@ -49,6 +49,7 @@ def make_figure(update_interval, x, y, color, facet_col, facet_row):
         facet_col=facet_col,
         facet_row=facet_row,
         height=700,
+        color_continuous_scale=px.colors.diverging.Spectral[::-1],
         title=str(update_interval)
     )
 
